@@ -1,16 +1,20 @@
-# Python
+# Python artifacts
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
-env/
-venv/
+*.py[cod]
 *.sqlite3
-*.db
 
-# OS
+# Database file
+*.db
+momo_data.db
+
+# Environments
+venv/
+.env
+
+# OS files
 .DS_Store
 Thumbs.db
 
-# Others
+# Logs
 *.log
+backend/logs/
