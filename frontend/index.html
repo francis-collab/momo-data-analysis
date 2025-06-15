@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MoMo Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>📊 MoMo Transaction Dashboard</h1>
+  </header>
+
+  <main>
+    <section id="search-section">
+  <label for="search-input" style="font-size: 1.1rem;">🔍 Search</label>
+  <input type="text" id="search-input" placeholder="Enter sender or recipient..." />
+  <button onclick="searchTransactions()">Search</button>
+</section>
+
+    <section id="summary-section">
+      <h2>Transaction Summary</h2>
+      <div id="summary-container"></div>
+    </section>
+
+    <section id="transaction-section">
+      <h2>All Transactions</h2>
+      <div id="filters">
+        <button onclick="loadTransactions()">All</button>
+        <button onclick="loadTransactions('Sent')">Sent</button>
+        <button onclick="loadTransactions('Received')">Received</button>
+        <button onclick="loadTransactions('Deposit')">Deposits</button>
+      </div>
+      <div id="transactions-container"></div>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 MoMo Analytics | Built with ❤️by Francis Mutabazi. All rights reserved</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
