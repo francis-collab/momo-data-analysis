@@ -31,17 +31,20 @@ def insert_transaction(conn, txn):
     VALUES (?, ?, ?, ?, ?, ?, ?, ?);
     """
     conn.execute(sql, (
-        txn.get('tx_id'),        # unique transaction id or None
-        txn.get('type'),         # tx_type: e.g. 'Sent', 'Received'
-        txn.get('amount'),       # integer amount
-        txn.get('sender'),       # sender string
-        txn.get('recipient'),    # recipient string
-        txn.get('date'),         # date string (e.g. '2025-06-15')
-        txn.get('balance'),      # int or None
-        txn.get('fee')           # int or None
+        txn.get('tx_id'),
+        txn.get('type'),
+        txn.get('amount'),
+        txn.get('sender'),
+        txn.get('recipient'),
+        txn.get('date'),
+        txn.get('balance'),
+        txn.get('fee')
     ))
-    conn.commit()
 
+def clear_transactions(conn):
+    conn.execute("DELETE FROM transactions;")
+    conn.commit()
+    
 def main():
     if not os.path.exists(SMS_XML_FILE):
         print(f"❌ File not found: {SMS_XML_FILE}")
@@ -58,6 +61,7 @@ def main():
 
     conn = sqlite3.connect(DB_FILE)
     create_table_if_not_exists(conn)
+    clear_transactions(conn)
 
     count = 0
     for txn in transactions:

@@ -1,55 +1,47 @@
-#!/usr/bin/env python3
-
-from flask import Flask, jsonify, request
+from flask import Flask, request, jsonify
+from flask_cors import CORS
 import sqlite3
 
 app = Flask(__name__)
+CORS(app)  # Enable CORS
+DATABASE = "/home/francis-collab/momo-data-analysis/backend/momo_data.db"
 
-# Enable CORS (for frontend integration)
-from flask_cors import CORS
-CORS(app)
-
-DB_FILE = "momo_data.db"
-
-# Function to establish database connection
 def get_db_connection():
-    conn = sqlite3.connect(DB_FILE)
-    conn.row_factory = sqlite3.Row  # Allows dictionary-like results
+    conn = sqlite3.connect(DATABASE)
+    conn.row_factory = sqlite3.Row
     return conn
 
 # API Route: Fetch all transactions
 @app.route("/transactions", methods=["GET"])
-def get_transactions():
+def get_all_transactions():
     conn = get_db_connection()
     transactions = conn.execute("SELECT * FROM transactions").fetchall()
     conn.close()
-
     return jsonify([dict(tx) for tx in transactions])
 
-# API Route: Fetch transactions by type (Received, Sent, etc.)
+# API Route: Fetch transactions by type
 @app.route("/transactions/<tx_type>", methods=["GET"])
 def get_transactions_by_type(tx_type):
     conn = get_db_connection()
     query = "SELECT * FROM transactions WHERE tx_type = ?"
     transactions = conn.execute(query, (tx_type,)).fetchall()
     conn.close()
-
     return jsonify([dict(tx) for tx in transactions])
 
-# API Route: Search transactions by sender or recipient
+# API Route: Search transactions by sender or recipient or date
 @app.route("/search", methods=["GET"])
 def search_transactions():
     query_param = request.args.get("q", "")
     conn = get_db_connection()
     query = """
-    SELECT * FROM transactions WHERE sender LIKE ? OR recipient LIKE ?
+    SELECT * FROM transactions
+    WHERE sender LIKE ? OR recipient LIKE ? OR date LIKE ?
     """
-    transactions = conn.execute(query, (f"%{query_param}%", f"%{query_param}%")).fetchall()
+    transactions = conn.execute(query, (f"%{query_param}%", f"%{query_param}%", f"%{query_param}%")).fetchall()
     conn.close()
-
     return jsonify([dict(tx) for tx in transactions])
 
-# API Route: Fetch transaction summary (total by type)
+# API Route: Fetch transaction summary
 @app.route("/summary", methods=["GET"])
 def transaction_summary():
     conn = get_db_connection()
@@ -59,9 +51,9 @@ def transaction_summary():
     """
     summary = conn.execute(query).fetchall()
     conn.close()
-
     return jsonify([dict(s) for s in summary])
 
-# Run Flask server
+# Run server
 if __name__ == "__main__":
     app.run(debug=True, host="127.0.0.1", port=5000)
+
