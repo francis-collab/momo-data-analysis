@@ -23,19 +23,26 @@ function displayTransactions(transactions) {
   let html = `<table>
     <thead>
       <tr>
-        <th>ID</th><th>Type</th><th>Amount</th><th>Sender</th><th>Recipient</th><th>Date</th>
+        <th>ID</th>
+        <th>Type</th>
+        <th>Amount</th>
+        <th>Sender</th>
+        <th>Recipient</th>
+        <th>Date</th>
       </tr>
     </thead>
     <tbody>`;
 
   transactions.forEach(tx => {
+    const txDate = tx.date || tx.created_at || "N/A";
+
     html += `<tr>
       <td>${tx.id}</td>
       <td>${tx.tx_type}</td>
       <td>${tx.amount}</td>
       <td>${tx.sender}</td>
       <td>${tx.recipient}</td>
-      <td>${tx.date}</td>
+      <td>${txDate}</td>
     </tr>`;
   });
 
@@ -43,52 +50,39 @@ function displayTransactions(transactions) {
   container.innerHTML = html;
 }
 
-// Fetch and display transaction summary
-async function loadSummary() {
-  try {
-    const res = await fetch(`${API_BASE_URL}/summary`);
-    const summary = await res.json();
-    displaySummary(summary);
-  } catch (err) {
-    console.error("Error loading summary:", err);
-  }
-}
-
-function displaySummary(summary) {
-  const container = document.getElementById("summary-container");
-  if (summary.length === 0) {
-    container.innerHTML = "<p>No summary data available.</p>";
-    return;
-  }
-
-  let html = "<ul>";
-  summary.forEach(item => {
-    html += `<li>${item.tx_type}: ${item.total_transactions} transactions, Total amount: ${item.total_amount}</li>`;
-  });
-  html += "</ul>";
-
-  container.innerHTML = html;
-}
-
 // Search transactions by sender or recipient
 async function searchTransactions() {
   const query = document.getElementById("search-input").value.trim();
-  if (!query) {
-    alert("Please enter a search query.");
-    return;
-  }
+  if (!query) return;
 
   try {
     const res = await fetch(`${API_BASE_URL}/search?q=${encodeURIComponent(query)}`);
-    const results = await res.json();
-    displayTransactions(results);
+    const data = await res.json();
+    displayTransactions(data);
   } catch (err) {
     console.error("Error searching transactions:", err);
   }
 }
 
+// Load summary stats
+async function loadSummary() {
+  try {
+    const res = await fetch(`${API_BASE_URL}/summary`);
+    const data = await res.json();
+    const container = document.getElementById("summary-container");
+    let html = `<ul>`;
+    data.forEach(item => {
+      html += `<li><strong>${item.tx_type}</strong>: ${item.total_transactions} transactions, Total ${item.total_amount} RWF</li>`;
+    });
+    html += `</ul>`;
+    container.innerHTML = html;
+  } catch (err) {
+    console.error("Error loading summary:", err);
+  }
+}
+
 // Load default data on page load
-window.onload = () => {
+document.addEventListener("DOMContentLoaded", () => {
   loadTransactions();
   loadSummary();
-};
+});
